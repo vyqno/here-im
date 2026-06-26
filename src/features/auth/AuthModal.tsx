@@ -22,7 +22,7 @@ function AppleIcon() {
   );
 }
 
-export default function AuthModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function AuthModal({ open, onClose, nextPath }: { open: boolean; onClose: () => void; nextPath?: string }) {
   const { signIn } = useAuth();
   const [busy, setBusy] = useState<"google" | "apple" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
     try {
       setError(null);
       setBusy(provider);
-      await signIn(provider); // redirects away on success
+      await signIn(provider, nextPath); // redirects away on success
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Sign-in failed.";
       setError(

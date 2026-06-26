@@ -9,7 +9,7 @@ type OAuthProvider = "google" | "apple";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  signIn: (provider: OAuthProvider) => Promise<void>;
+  signIn: (provider: OAuthProvider, next?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -40,10 +40,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase]);
 
-  const signIn = async (provider: OAuthProvider) => {
+  const signIn = async (provider: OAuthProvider, next = "/") => {
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo },
     });
     // If the provider isn't enabled (or misconfigured) in Supabase, there's
     // no redirect — surface the error so the UI can show it.

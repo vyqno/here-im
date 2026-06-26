@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import PageLayout from "@/components/PageLayout";
 import PickupCalendar from "@/components/PickupCalendar";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/features/auth/AuthProvider";
+import AuthModal from "@/features/auth/AuthModal";
 
 // Pickup time slots within business hours (Wed–Sun, 8:15–18:00).
 const TIME_SLOTS = [
@@ -22,7 +25,17 @@ function formatDate(iso: string): string {
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, cartTotal, pickupDate, setPickupDate, pickupTime, setPickupTime } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
   const [calOpen, setCalOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  // Not signed in → sign in (returns to /checkout after OAuth). Signed in
+  // → proceed straight to checkout. The cart survives the login redirect.
+  const handleCheckout = () => {
+    if (!user) { setAuthOpen(true); return; }
+    router.push("/checkout");
+  };
 
   if (items.length === 0) {
     return (
@@ -129,9 +142,10 @@ export default function CartPage() {
               <span>Total</span><span>₹{cartTotal}</span>
             </div>
             <button
+              onClick={handleCheckout}
               style={{ width:"100%", background:"#0d0c0b", color:"#fff", border:"none", padding:"16px", fontSize:"0.65rem", textTransform:"uppercase", letterSpacing:"0.15em", fontWeight:600, fontFamily:"'Instrument Sans',sans-serif", cursor:"pointer", borderRadius:4 }}
             >
-              Pre-order for pickup · ₹{cartTotal}
+              {user ? "Pre-order for pickup" : "Sign in to pre-order"} · ₹{cartTotal}
             </button>
             <p style={{ fontFamily:"'Instrument Sans',sans-serif", fontSize:"0.65rem", color:"#bbb", marginTop:14, textAlign:"center", lineHeight:1.6 }}>
               Secure payment on the next step. You&apos;ll receive a confirmation by email.
@@ -151,6 +165,8 @@ export default function CartPage() {
           <PickupCalendar value={pickupDate} onChange={(iso) => { setPickupDate(iso); setCalOpen(false); }} />
         </div>
       )}
+
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} nextPath="/checkout" />
     </PageLayout>
   );
 }
