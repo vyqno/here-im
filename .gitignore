@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase (migrations & local config kept out of git)
+/supabase/
+
+# markdown — keep everything out of git except README
+*.md
+!README.md
+!**/README.md

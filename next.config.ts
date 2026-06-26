@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // Accept any local /assets/** image
+    localPatterns: [{ pathname: "/assets/**" }],
+  },
 };
 
 export default nextConfig;
