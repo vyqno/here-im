@@ -14,8 +14,18 @@ function LoadingScreen() {
   const [exit, setExit] = useState(false);
 
   useEffect(() => {
+    // Only play the intro once per browser session — skip it on repeat
+    // visits to the home page within the same session.
+    if (sessionStorage.getItem("hi_intro_seen")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setGone(true);
+      return;
+    }
     const t1 = setTimeout(() => setExit(true), 2200);
-    const t2 = setTimeout(() => setGone(true), 3000);
+    const t2 = setTimeout(() => {
+      setGone(true);
+      sessionStorage.setItem("hi_intro_seen", "1");
+    }, 3000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PageLayout from "@/components/PageLayout";
@@ -23,7 +23,6 @@ export default function CheckoutPage() {
   const { items, cartTotal, pickupDate, pickupTime } = useCart();
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [notice, setNotice] = useState<string | null>(null);
 
   // Checkout is for signed-in users only.
   useEffect(() => {
@@ -53,12 +52,9 @@ export default function CheckoutPage() {
     );
   }
 
-  const handlePay = () => {
-    // Razorpay integration is the next phase: a server action will create
-    // the Razorpay order, the client will open checkout, and a verified
-    // webhook will create the order. Until keys are configured, surface that.
-    setNotice("Payment is being set up. Add your Razorpay keys to go live — the order will be created only after a verified payment.");
-  };
+  // Wired in the next phase: create Razorpay order → open checkout →
+  // verified webhook creates the order. No-op until that lands.
+  const handlePay = () => {};
 
   return (
     <PageLayout>
@@ -92,12 +88,6 @@ export default function CheckoutPage() {
         >
           Pay securely · ₹{cartTotal}
         </button>
-
-        {notice && (
-          <p style={{ fontFamily: "'Instrument Sans',sans-serif", fontSize: "0.78rem", color: "#8a6d3b", background: "#fdf6e7", border: "1px solid #f0e2c0", borderRadius: 6, padding: "14px 16px", marginTop: 16, lineHeight: 1.6 }}>
-            {notice}
-          </p>
-        )}
 
         <p style={{ fontFamily: "'Instrument Sans',sans-serif", fontSize: "0.7rem", color: "#bbb", marginTop: 16, textAlign: "center" }}>
           <Link href="/cart" style={{ color: "#888" }}>← Back to bag</Link>
