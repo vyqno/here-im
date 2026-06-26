@@ -59,6 +59,7 @@ export default function ProductDetailModal({
       <style>{`@keyframes pdpFade{from{opacity:0}to{opacity:1}}`}</style>
       <div
         onClick={(e) => e.stopPropagation()}
+        className="pdp-grid"
         style={{
           background: "#fff", borderRadius: 4,
           width: "min(1040px, calc(100vw - 32px))",
@@ -78,7 +79,7 @@ export default function ProductDetailModal({
         </button>
 
         {/* Left — image placeholder (carousel-ready) */}
-        <div style={{ position: "relative", background: "#f2efe9", aspectRatio: "1 / 1", maxHeight: "calc(100vh - 32px)" }}>
+        <div className="pdp-image" style={{ position: "relative", background: "#f2efe9", aspectRatio: "1 / 1", maxHeight: "calc(100vh - 32px)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={images[imgIdx]} alt={`${product.name} — image ${imgIdx + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           {/* carousel arrows */}

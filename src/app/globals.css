@@ -64,3 +64,36 @@ body {
 
 /* ─── smooth transitions ─ */
 a, button { transition: opacity 0.2s; cursor: pointer; }
+
+/* ─── responsive (mobile-first overrides; !important beats inline) ─ */
+.mobile-menu-btn { display: none; }
+
+@media (max-width: 860px) {
+  /* layout: stack everything */
+  .hero-split   { grid-template-columns: 1fr !important; }
+  .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .cart-grid    { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .pdp-grid     { grid-template-columns: 1fr !important; max-height: calc(100dvh - 32px) !important; overflow-y: auto !important; }
+  .pdp-image    { aspect-ratio: 1 / 1 !important; max-height: 46vh !important; }
+
+  /* header: swap inline nav for the hamburger menu */
+  .desktop-nav     { display: none !important; }
+  .mobile-menu-btn { display: flex !important; }
+
+  /* calendar: one month on small screens */
+  .cal-second, .cal-divider { display: none !important; }
+  .cal-months { gap: 0 !important; }
+}
+
+@media (max-width: 480px) {
+  .product-grid { grid-template-columns: 1fr !important; }
+}
+
+/* full-screen mobile menu */
+.mobile-nav-overlay {
+  position: fixed; inset: 0; z-index: 300; background: #fff;
+  display: flex; flex-direction: column;
+  padding: 20px 24px 40px;
+  animation: mnav 0.25s ease;
+}
+@keyframes mnav { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }

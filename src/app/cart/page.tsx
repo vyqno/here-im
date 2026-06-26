@@ -58,7 +58,7 @@ export default function CartPage() {
           Your bag
         </h1>
 
-        <div style={{ display:"grid", gridTemplateColumns:"minmax(0,1.6fr) minmax(0,1fr)", gap:"clamp(32px,5vw,64px)", alignItems:"start" }}>
+        <div className="cart-grid" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.6fr) minmax(0,1fr)", gap:"clamp(32px,5vw,64px)", alignItems:"start" }}>
           {/* Items + pickup */}
           <div style={{ display:"flex", flexDirection:"column", gap:32 }}>
             {/* item rows */}

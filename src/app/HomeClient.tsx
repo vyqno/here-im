@@ -7,6 +7,7 @@ import PickupCalendar from "@/components/PickupCalendar";
 import UserMenu from "@/features/auth/UserMenu";
 import ProductDetailModal from "@/features/products/ProductDetailModal";
 import CartButton from "@/features/cart/CartButton";
+import MobileNav from "@/components/MobileNav";
 
 // ─── Loading Screen ──────────────────────────────────────────
 function LoadingScreen() {
@@ -128,18 +129,14 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
       }}>
         {/* left: hamburger + logo */}
         <div style={{ display:"flex",alignItems:"center",gap:"20px" }}>
-          <button style={{ background:"none",border:"none",padding:4,color:"#0d0c0b",display:"flex",flexDirection:"column",gap:5,cursor:"pointer" }}>
-            <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-            <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-            <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-          </button>
+          <MobileNav />
           <span style={{ fontFamily:"'Instrument Serif',serif",fontSize:"1.05rem",letterSpacing:"0.08em",fontWeight:400 }}>
             HERE I&apos;M
           </span>
         </div>
 
         {/* center-right: nav */}
-        <nav style={{ display:"flex",alignItems:"center",gap:"32px" }}>
+        <nav className="desktop-nav" style={{ display:"flex",alignItems:"center",gap:"32px" }}>
           <a href="#shop" className="nav-hover nav-active" style={{ fontSize:"0.78rem",color:"#0d0c0b",letterSpacing:"0.02em" }}>
             Click &amp; collect
           </a>
@@ -159,7 +156,7 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
 
       <main>
         {/* ── HERO SPLIT ───────────────────────────────────── */}
-        <section id="shop" style={{
+        <section id="shop" className="hero-split" style={{
           display:"grid",
           gridTemplateColumns:"58% 42%",
           borderBottom:"1px solid #e8e6e3",
@@ -273,7 +270,7 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
 
         {/* ── PRODUCT GRID ─────────────────────────────────── */}
         <section style={{ padding: "48px 24px 0" }}>
-          <div style={{
+          <div className="product-grid" style={{
             display:"grid",
             gridTemplateColumns:"repeat(4, 1fr)",
             gap: "20px",

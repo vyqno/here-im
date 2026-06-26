@@ -182,18 +182,20 @@ export default function PickupCalendar({
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 36 }}>
+      <div className="cal-months" style={{ display: "flex", gap: 36 }}>
         <MonthGrid
           year={view.year} month={view.month}
           value={value} minISO={minISO} maxISO={maxISO} closedWeekdays={closedWeekdays}
           onSelect={onChange}
         />
-        <div style={{ width: 1, background: "#eceae5" }} />
-        <MonthGrid
-          year={right.getFullYear()} month={right.getMonth()}
-          value={value} minISO={minISO} maxISO={maxISO} closedWeekdays={closedWeekdays}
-          onSelect={onChange}
-        />
+        <div className="cal-divider" style={{ width: 1, background: "#eceae5" }} />
+        <div className="cal-second" style={{ flex: 1, minWidth: 0, display: "flex" }}>
+          <MonthGrid
+            year={right.getFullYear()} month={right.getMonth()}
+            value={value} minISO={minISO} maxISO={maxISO} closedWeekdays={closedWeekdays}
+            onSelect={onChange}
+          />
+        </div>
       </div>
     </div>
   );

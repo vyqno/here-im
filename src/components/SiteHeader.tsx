@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CartButton from "@/features/cart/CartButton";
 import UserMenu from "@/features/auth/UserMenu";
+import MobileNav from "@/components/MobileNav";
 
 const NAV = [
   { label: "Click & collect", href: "/" },
@@ -25,17 +26,13 @@ export default function SiteHeader() {
       padding:"0 24px",justifyContent:"space-between",
     }}>
       <div style={{ display:"flex",alignItems:"center",gap:"20px" }}>
-        <button aria-label="Menu" style={{ background:"none",border:"none",padding:4,color:"#0d0c0b",display:"flex",flexDirection:"column",gap:5,cursor:"pointer" }}>
-          <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-          <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-          <span style={{ display:"block",width:20,height:1.5,background:"currentColor" }}/>
-        </button>
+        <MobileNav />
         <Link href="/" style={{ fontFamily:"'Instrument Serif',serif",fontSize:"1.05rem",letterSpacing:"0.08em",fontWeight:400,color:"#0d0c0b",textDecoration:"none" }}>
           HERE I&apos;M
         </Link>
       </div>
 
-      <nav style={{ display:"flex",alignItems:"center",gap:"32px" }}>
+      <nav className="desktop-nav" style={{ display:"flex",alignItems:"center",gap:"32px" }}>
         {NAV.map(({ label, href }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
