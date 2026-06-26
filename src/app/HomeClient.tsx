@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import type { MenuProduct } from "@/features/products/queries";
+import PickupCalendar from "@/components/PickupCalendar";
+import UserMenu from "@/features/auth/UserMenu";
+import ProductDetailModal from "@/features/products/ProductDetailModal";
+import CartButton from "@/features/cart/CartButton";
 
 // ─── Loading Screen ──────────────────────────────────────────
 function LoadingScreen() {
@@ -60,93 +64,12 @@ function LoadingScreen() {
   );
 }
 
-// ─── Cart Drawer ─────────────────────────────────────────────
-function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { items, removeItem, updateQuantity, pickupDate, setPickupDate, pickupTime, setPickupTime, cartTotal } = useCart();
-
-  if (!open) return null;
-  return (
-    <>
-      <div onClick={onClose} style={{ position:"fixed",inset:0,zIndex:50,background:"rgba(0,0,0,0.4)" }} />
-      <aside style={{
-        position:"fixed",top:0,right:0,bottom:0,zIndex:51,
-        width:"min(420px,100vw)",background:"#fff",
-        display:"flex",flexDirection:"column",
-        boxShadow:"-8px 0 40px rgba(0,0,0,0.1)",
-      }}>
-        {/* header */}
-        <div style={{ padding:"1.5rem 1.75rem", borderBottom:"1px solid #e8e6e3", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <span style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem" }}>Shopping bag</span>
-          <button onClick={onClose} style={{ background:"none",border:"none",fontSize:"1.25rem",lineHeight:1,color:"#999" }}>✕</button>
-        </div>
-        {/* body */}
-        <div style={{ flex:1, overflowY:"auto", padding:"1.5rem 1.75rem" }}>
-          {items.length === 0 ? (
-            <p style={{ color:"#999", fontSize:"0.8rem", textTransform:"uppercase", letterSpacing:"0.1em" }}>Your bag is empty</p>
-          ) : (
-            <div style={{ display:"flex", flexDirection:"column", gap:"1rem" }}>
-              {items.map(item => (
-                <div key={item.id} style={{ display:"flex", gap:"0.75rem", paddingBottom:"1rem", borderBottom:"1px solid #f0eeeb" }}>
-                  <div style={{ width:56, height:56, background:"#e8e6e3", flexShrink:0 }} />
-                  <div style={{ flex:1 }}>
-                    <div style={{ display:"flex", justifyContent:"space-between" }}>
-                      <span style={{ fontSize:"0.75rem", fontWeight:500, textTransform:"uppercase", letterSpacing:"0.08em" }}>{item.name}</span>
-                      <button onClick={() => removeItem(item.id)} style={{ background:"none",border:"none",color:"#999",fontSize:"0.75rem" }}>✕</button>
-                    </div>
-                    <div style={{ display:"flex", justifyContent:"space-between", marginTop:"0.5rem", alignItems:"center" }}>
-                      <div style={{ display:"flex", alignItems:"center", border:"1px solid #e8e6e3" }}>
-                        <button onClick={() => updateQuantity(item.id, item.quantity-1)} style={{ background:"none",border:"none",width:28,height:28,color:"#666" }}>−</button>
-                        <span style={{ width:24,textAlign:"center",fontSize:"0.8rem" }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity+1)} style={{ background:"none",border:"none",width:28,height:28,color:"#666" }}>+</button>
-                      </div>
-                      <span style={{ fontSize:"0.8rem" }}>₹{(item.price * item.quantity)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {/* pickup */}
-              <div style={{ marginTop:"0.5rem", padding:"1rem", background:"#f7f5f2" }}>
-                <p style={{ fontSize:"0.6rem",textTransform:"uppercase",letterSpacing:"0.15em",marginBottom:"0.75rem",fontWeight:500 }}>Collection Schedule</p>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
-                  <div>
-                    <label style={{ display:"block",fontSize:"0.6rem",textTransform:"uppercase",letterSpacing:"0.1em",color:"#999",marginBottom:"0.25rem" }}>Date</label>
-                    <input type="date" value={pickupDate} onChange={e=>setPickupDate(e.target.value)} style={{ width:"100%",padding:"0.5rem",border:"1px solid #e0ddd9",fontSize:"0.75rem",fontFamily:"inherit" }}/>
-                  </div>
-                  <div>
-                    <label style={{ display:"block",fontSize:"0.6rem",textTransform:"uppercase",letterSpacing:"0.1em",color:"#999",marginBottom:"0.25rem" }}>Time</label>
-                    <input type="time" value={pickupTime} onChange={e=>setPickupTime(e.target.value)} style={{ width:"100%",padding:"0.5rem",border:"1px solid #e0ddd9",fontSize:"0.75rem",fontFamily:"inherit" }}/>
-                  </div>
-                </div>
-                <p style={{ fontSize:"0.6rem",color:"#aaa",marginTop:"0.5rem" }}>Wed–Sun · 8:15 am – 6:00 pm</p>
-              </div>
-            </div>
-          )}
-        </div>
-        {items.length > 0 && (
-          <div style={{ padding:"1.5rem 1.75rem", borderTop:"1px solid #e8e6e3" }}>
-            <div style={{ display:"flex",justifyContent:"space-between",marginBottom:"1rem",fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.1em",fontWeight:500 }}>
-              <span>Subtotal</span>
-              <span>₹{cartTotal}</span>
-            </div>
-            <button style={{
-              width:"100%", background:"#0d0c0b", color:"#fff",
-              border:"none", padding:"1rem",
-              fontSize:"0.65rem", textTransform:"uppercase", letterSpacing:"0.15em", fontWeight:500,
-              fontFamily:"inherit", cursor:"pointer",
-            }}>
-              Pre-Order for Pickup · ₹{cartTotal}
-            </button>
-          </div>
-        )}
-      </aside>
-    </>
-  );
-}
 
 // ─── Main Page ───────────────────────────────────────────────
 export default function HomeClient({ products }: { products: MenuProduct[] }) {
-  const { pickupDate, setPickupDate, addItem, cartCount } = useCart();
-  const [cartOpen, setCartOpen] = useState(false);
+  const { pickupDate, setPickupDate, addItem } = useCart();
+  const [calOpen, setCalOpen] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<MenuProduct | null>(null);
   const [qtyMap, setQtyMap] = useState<Record<string,number>>({});
   const [toast, setToast] = useState<string|null>(null);
 
@@ -210,31 +133,17 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
           <a href="#shop" className="nav-hover nav-active" style={{ fontSize:"0.78rem",color:"#0d0c0b",letterSpacing:"0.02em" }}>
             Click &amp; collect
           </a>
-          <a href="#" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Our story</a>
-          <a href="#" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Menu</a>
-          <a href="#" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Events</a>
+          <a href="/our-story" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Our story</a>
+          <a href="/menu" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Menu</a>
+          <a href="/events" className="nav-hover" style={{ fontSize:"0.78rem",color:"#0d0c0b" }}>Events</a>
         </nav>
 
         {/* right: icons */}
         <div style={{ display:"flex",alignItems:"center",gap:"16px" }}>
-          {/* user */}
-          <button style={{ background:"none",border:"none",padding:4,color:"#0d0c0b",cursor:"pointer" }}>
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-          </button>
-          {/* cart count + bag */}
-          <button
-            onClick={() => setCartOpen(true)}
-            style={{ background:"none",border:"none",display:"flex",alignItems:"center",gap:6,cursor:"pointer",color:"#0d0c0b" }}
-          >
-            {cartCount > 0 && (
-              <span style={{ fontSize:"0.8rem",color:"#0d0c0b" }}>{cartCount}</span>
-            )}
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-            </svg>
-          </button>
+          {/* account — sign in / menu */}
+          <UserMenu />
+          {/* cart — hover preview, click → /cart */}
+          <CartButton />
         </div>
       </header>
 
@@ -247,7 +156,7 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
         }}>
           {/* LEFT: store details */}
           <div style={{
-            background:"#f7f5f2",
+            background:"#f5f5f5",
             padding:"clamp(48px,7vw,96px) clamp(32px,6vw,80px)",
             display:"flex",flexDirection:"column",justifyContent:"center",gap:"20px",
           }}>
@@ -305,26 +214,49 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
             </h2>
 
             {/* date pill button */}
-            <div style={{ position:"relative",display:"inline-flex" }}>
-              <div style={{
-                display:"flex",alignItems:"center",gap:10,
-                background:"#fff",color:"#0d0c0b",
-                borderRadius:999,
-                padding:"14px 28px",
-                fontSize:"0.875rem",fontWeight:600,
-                cursor:"pointer",userSelect:"none",
-                width:"fit-content",
-              }}>
+            <div style={{ position:"relative",display:"inline-flex",alignSelf:"flex-start" }}>
+              <button
+                type="button"
+                onClick={() => setCalOpen(o => !o)}
+                style={{
+                  display:"flex",alignItems:"center",gap:10,
+                  background:"#fff",color:"#0d0c0b",
+                  border:"none",borderRadius:999,
+                  padding:"14px 28px",
+                  fontSize:"0.875rem",fontWeight:600,fontFamily:"inherit",
+                  cursor:"pointer",userSelect:"none",
+                  width:"fit-content",
+                }}
+                aria-haspopup="dialog"
+                aria-expanded={calOpen}
+              >
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                   <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
                 {fmtDate(pickupDate)}
-              </div>
-              <input
-                type="date" value={pickupDate}
-                onChange={e => setPickupDate(e.target.value)}
-                style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }}
-              />
+              </button>
+
+              {calOpen && (
+                <div
+                  onClick={() => setCalOpen(false)}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Choose pickup date"
+                  style={{
+                    position:"fixed",inset:0,zIndex:200,
+                    background:"rgba(13,12,11,0.45)",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    padding:16,
+                    animation:"calFade 0.2s ease",
+                  }}
+                >
+                  <style>{`@keyframes calFade{from{opacity:0}to{opacity:1}}`}</style>
+                  <PickupCalendar
+                    value={pickupDate}
+                    onChange={(iso) => { setPickupDate(iso); setCalOpen(false); }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -343,15 +275,19 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
                 className="card-wrap"
                 style={{ display:"flex",flexDirection:"column" }}
               >
-                {/* image placeholder */}
-                <div className="card-img-wrap" style={{ aspectRatio:"48/65",position:"relative",overflow:"hidden" }}>
+                {/* image placeholder — click opens product detail */}
+                <div
+                  className="card-img-wrap"
+                  onClick={() => setDetailProduct(product)}
+                  style={{ aspectRatio:"48/67",position:"relative",overflow:"hidden",cursor:"pointer" }}
+                >
                   <img
                     className="placeholder"
-                    src={`https://placehold.co/480x650/f2efe9/b0aca5?text=${encodeURIComponent(product.name)}`}
-                    srcSet={`https://placehold.co/480x650/f2efe9/b0aca5?text=${encodeURIComponent(product.name)} 480w, https://placehold.co/960x1300/f2efe9/b0aca5?text=${encodeURIComponent(product.name)} 960w`}
+                    src={`https://placehold.co/480x670/f5f5f5/b0b0b0?text=${encodeURIComponent(product.name)}`}
+                    srcSet={`https://placehold.co/480x670/f5f5f5/b0b0b0?text=${encodeURIComponent(product.name)} 480w, https://placehold.co/960x1340/f5f5f5/b0b0b0?text=${encodeURIComponent(product.name)} 960w`}
                     sizes="(min-width: 994px) 308px, calc((100vw - 16px) / 3)"
                     width="308"
-                    height="417"
+                    height="430"
                     loading="lazy"
                     data-image-list=""
                     alt={product.name}
@@ -374,11 +310,11 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
                       {/* qty stepper dots */}
                       <div style={{ display:"flex",gap:3 }}>
                         <button
-                          onClick={() => changeQty(product.id,-1)}
+                          onClick={(e) => { e.stopPropagation(); changeQty(product.id,-1); }}
                           style={{ width:6,height:6,borderRadius:"50%",background:"rgba(255,255,255,0.5)",border:"none",cursor:"pointer",padding:0 }}
                         />
                         <button
-                          onClick={() => changeQty(product.id,1)}
+                          onClick={(e) => { e.stopPropagation(); changeQty(product.id,1); }}
                           style={{ width:6,height:6,borderRadius:"50%",background:"rgba(255,255,255,0.9)",border:"none",cursor:"pointer",padding:0 }}
                         />
                       </div>
@@ -387,7 +323,7 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
                     {/* Add to bag circle button */}
                     <button
                       id={`add-${product.id}`}
-                      onClick={() => addToBag(product)}
+                      onClick={(e) => { e.stopPropagation(); addToBag(product); }}
                       style={{
                         width:44,height:44,borderRadius:"50%",
                         background:"#fff",border:"none",cursor:"pointer",
@@ -477,13 +413,18 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
         {/* nav links */}
         <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:20,padding:"28px 24px 24px" }}>
           <nav style={{ display:"flex",gap:"32px",flexWrap:"wrap",justifyContent:"center" }}>
-            {["Contact us","About","Help","Join us","Privacy"].map(label => (
-              <a key={label} href="#" style={{
-                fontSize:"0.75rem",color:"#0d0c0b",textDecoration:"none",letterSpacing:"0.02em",
-              }}
-                onMouseEnter={e=>(e.currentTarget.style.textDecoration="underline")}
-                onMouseLeave={e=>(e.currentTarget.style.textDecoration="none")}
-              >{label}</a>
+            {[
+              { label:"Contact us", href:"/contact" },
+              { label:"About", href:"/about" },
+              { label:"Help", href:"/help" },
+              { label:"Join us", href:"/join-us" },
+              { label:"Privacy", href:"/privacy" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} className="nav-hover" style={{
+                fontSize:"0.75rem",color:"#0d0c0b",letterSpacing:"0.02em",
+              }}>
+                {label}
+              </a>
             ))}
           </nav>
           {/* bottom row */}
@@ -497,21 +438,21 @@ export default function HomeClient({ products }: { products: MenuProduct[] }) {
             <p style={{ fontSize:"0.6rem",color:"#bbb",letterSpacing:"0.04em" }}>
               © 2026 HERE I&apos;M &nbsp;·&nbsp; A site by here-im.in
             </p>
-            {/* chat bubble */}
-            <button style={{
-              background:"#0d0c0b",color:"#fff",border:"none",
-              borderRadius:"50%",width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",
-              cursor:"pointer",boxShadow:"0 2px 12px rgba(0,0,0,0.15)",
-            }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-            </button>
+            {/* spacer keeps the copyright centred */}
+            <div style={{ width:26 }} />
           </div>
         </div>
       </footer>
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+        onAdd={(p, quantity) => {
+          addItem({ id:p.id, name:p.name, price:p.price, image:"" }, quantity);
+          setToast(`Added ${p.name}`);
+          setTimeout(() => setToast(null), 2500);
+        }}
+      />
     </div>
   );
 }
