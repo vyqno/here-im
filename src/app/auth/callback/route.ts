@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { hasSupabase } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 // OAuth (Google / Apple) redirect target. Exchanges the auth code for a
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
 
-  if (code) {
+  if (code && hasSupabase) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {

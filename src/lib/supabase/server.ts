@@ -2,10 +2,13 @@
 // Handlers). Next 16: cookies() is async, so this factory is async.
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { env } from "@/lib/env";
+import { env, hasSupabase } from "@/lib/env";
 import type { Database } from "@/types/database";
 
 export async function createClient() {
+  if (!hasSupabase || !env.supabaseUrl || !env.supabasePublishableKey) {
+    throw new Error("Supabase is not configured.");
+  }
   const cookieStore = await cookies();
 
   return createServerClient<Database>(

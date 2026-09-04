@@ -3,6 +3,7 @@
 // Server-side cart operations for authenticated users. The cart lives in
 // Supabase (carts / cart_items); product name/price/image are always
 // resolved from the products table, never trusted from the client.
+import { hasSupabase } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export interface ServerCartItem {
@@ -14,6 +15,7 @@ export interface ServerCartItem {
 }
 
 async function getUserId() {
+  if (!hasSupabase) return { supabase: null, userId: null as string | null };
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   return { supabase, userId: data.user?.id ?? null };
@@ -36,7 +38,7 @@ async function getOrCreateCartId(
 /** Load the signed-in user's cart with live product details. */
 export async function getServerCart(): Promise<ServerCartItem[]> {
   const { supabase, userId } = await getUserId();
-  if (!userId) return [];
+  if (!supabase || !userId) return [];
 
   const cartId = await getOrCreateCartId(supabase, userId);
   const { data, error } = await supabase
@@ -67,7 +69,7 @@ export async function mergeGuestCart(
   guestItems: { id: string; quantity: number }[],
 ): Promise<ServerCartItem[]> {
   const { supabase, userId } = await getUserId();
-  if (!userId) return [];
+  if (!supabase || !userId) return [];
   const cartId = await getOrCreateCartId(supabase, userId);
 
   if (guestItems.length > 0) {
@@ -93,7 +95,7 @@ export async function mergeGuestCart(
 /** Set a line item's quantity (deletes when quantity <= 0). */
 export async function setServerCartItem(productId: string, quantity: number): Promise<void> {
   const { supabase, userId } = await getUserId();
-  if (!userId) return;
+  if (!supabase || !userId) return;
   const cartId = await getOrCreateCartId(supabase, userId);
 
   if (quantity <= 0) {
@@ -109,7 +111,7 @@ export async function setServerCartItem(productId: string, quantity: number): Pr
 /** Add to an existing quantity (or create the line). */
 export async function addServerCartItem(productId: string, quantity: number): Promise<void> {
   const { supabase, userId } = await getUserId();
-  if (!userId) return;
+  if (!supabase || !userId) return;
   const cartId = await getOrCreateCartId(supabase, userId);
 
   const { data: existing } = await supabase
@@ -120,7 +122,7 @@ export async function addServerCartItem(productId: string, quantity: number): Pr
 
 export async function clearServerCart(): Promise<void> {
   const { supabase, userId } = await getUserId();
-  if (!userId) return;
+  if (!supabase || !userId) return;
   const cartId = await getOrCreateCartId(supabase, userId);
   await supabase.from("cart_items").delete().eq("cart_id", cartId);
 }

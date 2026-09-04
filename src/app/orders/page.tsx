@@ -5,6 +5,7 @@ import Link from "next/link";
 import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/features/auth/AuthProvider";
 import AuthModal from "@/features/auth/AuthModal";
+import { hasSupabase } from "@/lib/env";
 import { createClient } from "@/lib/supabase/client";
 
 interface OrderRow {
@@ -30,7 +31,7 @@ export default function OrdersPage() {
   useEffect(() => {
     if (authLoading) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!user) { setLoading(false); return; }
+    if (!user || !hasSupabase) { setLoading(false); return; }
 
     const supabase = createClient();
     supabase

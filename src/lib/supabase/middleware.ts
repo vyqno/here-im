@@ -2,10 +2,14 @@
 // keeps the auth cookies in sync between the browser and the server.
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { env } from "@/lib/env";
+import { env, hasSupabase } from "@/lib/env";
 import type { Database } from "@/types/database";
 
 export async function updateSession(request: NextRequest) {
+  if (!hasSupabase || !env.supabaseUrl || !env.supabasePublishableKey) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(

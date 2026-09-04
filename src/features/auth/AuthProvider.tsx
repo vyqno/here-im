@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import { hasSupabase } from "@/lib/env";
 import { createClient } from "@/lib/supabase/client";
 
 type OAuthProvider = "google" | "apple";
@@ -16,11 +17,16 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = useMemo(() => (hasSupabase ? createClient() : null), []);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     let active = true;
 
     supabase.auth.getUser().then(({ data }) => {
@@ -41,6 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   const signIn = async (provider: OAuthProvider, next = "/") => {
+    if (!supabase) {
+      throw new Error("Sign-in isn't available without Supabase.");
+    }
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -52,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
     setUser(null);
   };
 

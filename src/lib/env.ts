@@ -7,22 +7,20 @@
 // secrets are read in the server modules that need them.
 // ─────────────────────────────────────────────────────────────
 
-function requiredPublic(name: string, value: string | undefined): string {
-  if (!value) {
-    throw new Error(
-      `Missing required environment variable: ${name}. Add it to .env.local.`,
-    );
-  }
-  return value;
+function optionalPublic(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
 }
 
 export const env = {
-  supabaseUrl: requiredPublic(
-    "NEXT_PUBLIC_SUPABASE_URL",
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-  ),
-  supabasePublishableKey: requiredPublic(
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  supabaseUrl: optionalPublic(process.env.NEXT_PUBLIC_SUPABASE_URL),
+  supabasePublishableKey: optionalPublic(
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   ),
 } as const;
+
+/** False when running locally without a `.env.local` — UI still works. */
+export const hasSupabase = Boolean(
+  env.supabaseUrl && env.supabasePublishableKey,
+);
