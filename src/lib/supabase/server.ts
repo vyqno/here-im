@@ -25,10 +25,13 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // setAll called from a Server Component — safe to ignore;
-            // the middleware refreshes the session cookies instead.
+            // setAll called from a Server Component — safe to ignore.
           }
         },
+      },
+      global: {
+        fetch: (input, init) =>
+          fetch(input, { ...init, signal: AbortSignal.timeout(2000) }),
       },
     },
   );
