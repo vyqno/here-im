@@ -29,23 +29,24 @@ const LOCAL_MENU: MenuProduct[] = [
 export async function getMenuProducts(): Promise<MenuProduct[]> {
   if (!hasSupabase) return LOCAL_MENU;
 
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, name, description, price_paise, display_order")
+      .eq("status", "active")
+      .is("deleted_at", null)
+      .order("display_order", { ascending: true });
 
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, name, description, price_paise, display_order")
-    .eq("status", "active")
-    .is("deleted_at", null)
-    .order("display_order", { ascending: true });
+    if (error || !data?.length) return LOCAL_MENU;
 
-  if (error) {
-    throw new Error(`Failed to load menu products: ${error.message}`);
+    return data.map((p) => ({
+      id: p.id,
+      name: p.name,
+      desc: p.description ?? "",
+      price: p.price_paise / 100,
+    }));
+  } catch {
+    return LOCAL_MENU;
   }
-
-  return (data ?? []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    desc: p.description ?? "",
-    price: p.price_paise / 100,
-  }));
 }
