@@ -12,30 +12,37 @@ export async function updateSession(request: NextRequest) {
 
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(
-    env.supabaseUrl,
-    env.supabasePublishableKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
+  try {
+    const supabase = createServerClient<Database>(
+      env.supabaseUrl,
+      env.supabasePublishableKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value),
+            );
+            response = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options),
+            );
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
+        global: {
+          // Dead/slow Supabase must not hold the edge isolate until Vercel 504s.
+          fetch: (input, init) =>
+            fetch(input, { ...init, signal: AbortSignal.timeout(2000) }),
         },
       },
-    },
-  );
+    );
 
-  // Touching getUser() refreshes the session if needed. Do not run
-  // logic between createServerClient and getUser (avoids random logouts).
-  await supabase.auth.getUser();
+    await supabase.auth.getUser();
+  } catch {
+    return NextResponse.next({ request });
+  }
 
   return response;
 }
