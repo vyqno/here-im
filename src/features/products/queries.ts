@@ -1,9 +1,6 @@
 // Product reads for the public menu. Runs on the server (Server
 // Components) against Supabase. Prices are stored in paise and
 // converted to rupees at the edge of the data layer.
-import { hasSupabase } from "@/lib/env";
-import { createClient } from "@/lib/supabase/server";
-
 export interface MenuProduct {
   id: string;
   name: string;
@@ -27,26 +24,7 @@ const LOCAL_MENU: MenuProduct[] = [
 ];
 
 export async function getMenuProducts(): Promise<MenuProduct[]> {
-  if (!hasSupabase) return LOCAL_MENU;
-
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, name, description, price_paise, display_order")
-      .eq("status", "active")
-      .is("deleted_at", null)
-      .order("display_order", { ascending: true });
-
-    if (error || !data?.length) return LOCAL_MENU;
-
-    return data.map((p) => ({
-      id: p.id,
-      name: p.name,
-      desc: p.description ?? "",
-      price: p.price_paise / 100,
-    }));
-  } catch {
-    return LOCAL_MENU;
-  }
+  // Production Supabase is currently unreachable and was stalling the
+  // homepage. Serve the static menu until that backend is healthy.
+  return LOCAL_MENU;
 }
